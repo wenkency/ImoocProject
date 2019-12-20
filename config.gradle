@@ -1,0 +1,25 @@
+// 整个项目的配置
+ext {
+    // false : 组件模式（可以独立运行）
+    // true  : 依赖模式
+    isModule = false
+    app = [
+            compileSdkVersion: 28,
+            minSdkVersion    : 15,
+            targetSdkVersion : 28,
+            versionCode      : 1,
+            versionName      : "1.0"
+    ]
+    appId = [
+            applicationId: "cn.carhouse.quick",
+            moudle       : "cn.carhouse.module"
+    ]
+    // 公共配置
+    depenLibs = [
+            appcompat      : "androidx.appcompat:appcompat:1.1.0",
+            base           : "com.github.wenkency:base:1.4.0",
+            // 阿里ARouter
+            arouterCompiler: "com.alibaba:arouter-compiler:1.2.2",
+            eventbus        : "org.greenrobot:eventbus:3.1.1",
+    ]
+}

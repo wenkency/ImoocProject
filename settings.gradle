@@ -1,0 +1,2 @@
+include ':app', ':lib-frame', ':lib-audio'
+rootProject.name='ImoocProject'

@@ -1,0 +1,38 @@
+apply plugin: 'com.android.application'
+// 阿里的ARouter
+//apply plugin: 'com.alibaba.arouter'
+android {
+    compileSdkVersion 28
+    defaultConfig {
+        applicationId "cn.carhouse.imoocproject"
+        minSdkVersion 15
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+
+        // 是注解编译用
+//        javaCompileOptions {
+//            annotationProcessorOptions {
+//                arguments = [AROUTER_MODULE_NAME: project.getName()]
+//            }
+//        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    // 解编配置
+//    compileOptions {
+//        sourceCompatibility JavaVersion.VERSION_1_8
+//        targetCompatibility JavaVersion.VERSION_1_8
+//    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(path: ':lib-frame')
+//    implementation this.depenLibs.arouterCompiler
+    implementation project(path: ':lib-audio')
+}
