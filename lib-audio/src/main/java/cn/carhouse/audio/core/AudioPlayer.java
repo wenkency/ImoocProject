@@ -25,6 +25,7 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener, MediaPlaye
     public static final String TAG = AudioPlayer.class.getSimpleName();
     private static final int TIME_MSG = 0x100;
     private static final int TIME_DELAY = 500;
+    private static final int TIME_CURRENT = -100;
     // 音乐播放器
     private AudioMediaPlayer mMediaPlayer;
     private WifiManager.WifiLock mWifiLock;
@@ -34,7 +35,7 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener, MediaPlaye
     private boolean isPaused = false;
     private MediaPlayer.OnCompletionListener mOnCompletionListener;
     // 标识有没有播放完成
-    private int mCurrentPosition = -100;
+    private int mCurrentPosition = TIME_CURRENT;
     private Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(@NonNull Message msg) {
@@ -42,19 +43,22 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener, MediaPlaye
             int currentPosition = getCurrentPosition();
             int duration = getDuration();
             // 完成播放了
-            if (getStatus() == MediaStatus.STARTED && mCurrentPosition == currentPosition) {
-                Log.e(TAG, "handleMessage:onCompletion");
+            if (mCurrentPosition != TIME_CURRENT &&
+                    getStatus() == MediaStatus.STARTED &&
+                    mCurrentPosition == currentPosition) {
+                Log.e(TAG, "handleMessage:onCompletion-->" + mCurrentPosition);
+                resetCurrent();
                 mMediaPlayer.onCompletion(mMediaPlayer);
                 return;
             }
-            mCurrentPosition = currentPosition;
+
             switch (msg.what) {
                 case TIME_MSG:
                     // 更新进度
                     //暂停也要更新进度，防止UI不同步，只不过进度一直一样
                     if (getStatus() == MediaStatus.STARTED
                             || getStatus() == MediaStatus.PAUSED) {
-
+                        mCurrentPosition = currentPosition;
                         // 发送更新事件
                         AudioEventBean.post(getStatus(), currentPosition, duration);
                         // 发送事件再更新
@@ -122,7 +126,7 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener, MediaPlaye
     }
 
     private void resetCurrent() {
-        mCurrentPosition = -100;
+        mCurrentPosition = TIME_CURRENT;
     }
 
     @Override
@@ -140,11 +144,13 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener, MediaPlaye
             Log.e(TAG, "获取音频焦点失败");
         }
         resetCurrent();
+        // 先移除事件。不然会凉
+        mHandler.removeMessages(TIME_MSG);
         mMediaPlayer.start();
         // 启用wifi锁
         mWifiLock.acquire();
         // 更新进度
-        mHandler.sendEmptyMessage(TIME_MSG);
+        mHandler.sendEmptyMessageDelayed(TIME_MSG, TIME_DELAY);
         // TODO　发送start事件，UI类型处理事件
         AudioEventBean.post(getStatus());
     }

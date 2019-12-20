@@ -9,8 +9,9 @@
 
     <Button
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:text="播放"
+        android:layout_marginTop="10dp"
         android:onClick="play"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -18,8 +19,9 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
+        android:layout_marginTop="10dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:text="暂停"
         android:onClick="pause"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -28,8 +30,9 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
+        android:layout_marginTop="10dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:text="下一首"
         android:onClick="next"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -38,8 +41,9 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
+        android:layout_marginTop="10dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:text="上一首"
         android:onClick="previous"
         app:layout_constraintBottom_toBottomOf="parent"
