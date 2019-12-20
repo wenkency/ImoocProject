@@ -202,9 +202,9 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener, MediaPlaye
         }
         mWifiLock = null;
         mAudioFocusManager = null;
-        mHandler.removeCallbacksAndMessages(null);
+        mHandler.removeMessages(TIME_MSG);
         // TODO 发送销毁播放器事件,清除通知等
-        AudioEventBean.post(getStatus());
+        AudioEventBean.post(getStatus(), AudioEventBean.EVENT_RELEASE);
     }
 
     @Override

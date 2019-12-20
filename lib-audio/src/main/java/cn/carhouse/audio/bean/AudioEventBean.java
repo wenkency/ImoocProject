@@ -16,6 +16,10 @@ public class AudioEventBean {
      * 加载错误
      */
     public static final int EVENT_ERROR = 0x0002;
+    /**
+     * 销毁事件
+     */
+    public static final int EVENT_RELEASE = 0x0003;
     private MediaStatus mediaStatus;
     private int currentPosition;
     private int duration;
