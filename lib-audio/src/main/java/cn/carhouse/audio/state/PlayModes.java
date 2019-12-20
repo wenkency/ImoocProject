@@ -19,5 +19,5 @@ public enum PlayModes {
     /**
      * 单曲播放
      */
-    SiNGLE,
+    SINGLE,
 }

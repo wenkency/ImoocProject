@@ -46,7 +46,7 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener, MediaPlaye
             if (mCurrentPosition != TIME_CURRENT &&
                     getStatus() == MediaStatus.STARTED &&
                     mCurrentPosition == currentPosition) {
-                Log.e(TAG, "handleMessage:onCompletion-->" + mCurrentPosition);
+                Log.e(TAG, "mCurrentPosition:" + mCurrentPosition +" currentPosition:" + currentPosition + " duration:" + duration);
                 resetCurrent();
                 mMediaPlayer.onCompletion(mMediaPlayer);
                 return;

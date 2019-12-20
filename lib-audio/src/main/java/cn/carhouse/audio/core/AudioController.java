@@ -241,7 +241,7 @@ public class AudioController implements MediaPlayer.OnCompletionListener {
     public void setPlayMode(PlayModes mPlayMode) {
         this.mPlayMode = mPlayMode;
         // 单曲播放
-        if (mPlayMode == PlayModes.SiNGLE) {
+        if (mPlayMode == PlayModes.SINGLE) {
             mAudioPlayer.setLooping(true);
         }
     }
