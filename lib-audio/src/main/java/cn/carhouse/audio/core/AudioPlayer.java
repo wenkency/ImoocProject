@@ -45,7 +45,6 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener, MediaPlaye
             if (getStatus() == MediaStatus.STARTED && mCurrentPosition == currentPosition) {
                 Log.e(TAG, "handleMessage:onCompletion");
                 mMediaPlayer.onCompletion(mMediaPlayer);
-                mCurrentPosition = -100;
                 return;
             }
             mCurrentPosition = currentPosition;
@@ -104,6 +103,10 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener, MediaPlaye
      */
     public void play(AudioBean bean) {
         try {
+            // 手动设置状态最快
+            mMediaPlayer.setStatus(MediaStatus.IDLE);
+            Log.e(TAG, "" + bean.toString());
+            resetCurrent();
             mMediaPlayer.reset();
             mMediaPlayer.setDataSource(bean.getUrl());
             mMediaPlayer.prepareAsync();
@@ -116,6 +119,10 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener, MediaPlaye
             AudioEventBean.post(getStatus(), AudioEventBean.EVENT_ERROR);
         }
 
+    }
+
+    private void resetCurrent() {
+        mCurrentPosition = -100;
     }
 
     @Override
@@ -132,7 +139,7 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener, MediaPlaye
         if (!mAudioFocusManager.requestAudioFocus()) {
             Log.e(TAG, "获取音频焦点失败");
         }
-        mCurrentPosition = -100;
+        resetCurrent();
         mMediaPlayer.start();
         // 启用wifi锁
         mWifiLock.acquire();

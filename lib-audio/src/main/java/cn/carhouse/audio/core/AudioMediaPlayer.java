@@ -101,6 +101,10 @@ public class AudioMediaPlayer extends MediaPlayer implements MediaPlayer.OnCompl
         return mStatus;
     }
 
+    public void setStatus(MediaStatus mStatus) {
+        this.mStatus = mStatus;
+    }
+
     public boolean isCompleted() {
         return mStatus == MediaStatus.COMPLETED;
     }
