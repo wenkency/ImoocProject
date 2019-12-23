@@ -185,6 +185,9 @@ public class AudioController implements MediaPlayer.OnCompletionListener {
      * 播放/暂停切换
      */
     public void playOrPause() {
+        if (isEmpty()) {
+            return;
+        }
         if (isIdleState()) {
             play();
         } else if (isStartState()) {
@@ -192,6 +195,10 @@ public class AudioController implements MediaPlayer.OnCompletionListener {
         } else if (isPauseState()) {
             resume();
         }
+    }
+
+    private boolean isEmpty() {
+        return mQueue == null || mQueue.isEmpty();
     }
 
     /**
@@ -205,6 +212,9 @@ public class AudioController implements MediaPlayer.OnCompletionListener {
      * 加载next index歌曲
      */
     public void next() {
+        if (isEmpty()) {
+            return;
+        }
         AudioBean bean = getNextPlaying();
         play(bean);
     }
@@ -213,6 +223,9 @@ public class AudioController implements MediaPlayer.OnCompletionListener {
      * 加载previous index歌曲
      */
     public void previous() {
+        if (isEmpty()) {
+            return;
+        }
         AudioBean bean = getPreviousPlaying();
         play(bean);
     }
