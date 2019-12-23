@@ -20,6 +20,8 @@ ext {
             base           : "com.github.wenkency:base:1.4.0",
             // 阿里ARouter
             arouterCompiler: "com.alibaba:arouter-compiler:1.2.2",
-            eventbus        : "org.greenrobot:eventbus:3.1.1",
+            eventbus       : "org.greenrobot:eventbus:3.1.1",
+            utils          : 'com.github.wenkency:utils:1.2.0',
+            imageloader    : 'com.github.wenkency:imageloader:1.7.0',
     ]
 }

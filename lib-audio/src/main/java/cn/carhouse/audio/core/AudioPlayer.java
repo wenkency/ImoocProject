@@ -8,7 +8,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -22,7 +21,6 @@ import cn.carhouse.audio.state.MediaStatus;
  * 2. 发送各种事件
  */
 public class AudioPlayer implements MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnBufferingUpdateListener, AudioFocusManager.AudioFocusListener {
-    public static final String TAG = AudioPlayer.class.getSimpleName();
     private static final int TIME_MSG = 0x100;
     private static final int TIME_DELAY = 500;
     private static final int TIME_CURRENT = -100;
@@ -46,7 +44,6 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener, MediaPlaye
             if (mCurrentPosition != TIME_CURRENT &&
                     getStatus() == MediaStatus.STARTED &&
                     mCurrentPosition == currentPosition) {
-                Log.e(TAG, "mCurrentPosition:" + mCurrentPosition +" currentPosition:" + currentPosition + " duration:" + duration);
                 resetCurrent();
                 mMediaPlayer.onCompletion(mMediaPlayer);
                 return;
@@ -109,17 +106,15 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener, MediaPlaye
         try {
             // 手动设置状态最快
             mMediaPlayer.setStatus(MediaStatus.IDLE);
-            Log.e(TAG, "" + bean.toString());
             resetCurrent();
+            // 发送事件
+            AudioEventBean.post(getStatus(), bean);
             mMediaPlayer.reset();
             mMediaPlayer.setDataSource(bean.getUrl());
             mMediaPlayer.prepareAsync();
-            // -->onPrepared
-            // TODO 发送事件
-            AudioEventBean.post(getStatus());
         } catch (Throwable e) {
             e.printStackTrace();
-            // TODO 发送事件
+            // 发送事件
             AudioEventBean.post(getStatus(), AudioEventBean.EVENT_ERROR);
         }
 
@@ -141,7 +136,7 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener, MediaPlaye
     private void start() {
         // 获取音频焦点,保证我们的播放器顺利播放
         if (!mAudioFocusManager.requestAudioFocus()) {
-            Log.e(TAG, "获取音频焦点失败");
+            // Log.e(TAG, "获取音频焦点失败");
         }
         resetCurrent();
         // 先移除事件。不然会凉
@@ -151,7 +146,7 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener, MediaPlaye
         mWifiLock.acquire();
         // 更新进度
         mHandler.sendEmptyMessageDelayed(TIME_MSG, TIME_DELAY);
-        // TODO　发送start事件，UI类型处理事件
+        // 发送start事件，UI类型处理事件
         AudioEventBean.post(getStatus());
     }
 
@@ -169,7 +164,7 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener, MediaPlaye
             if (mAudioFocusManager != null) {
                 mAudioFocusManager.abandonAudioFocus();
             }
-            // TODO 发送暂停事件,UI类型事件
+            // 发送暂停事件,UI类型事件
             AudioEventBean.post(getStatus());
         }
     }
@@ -203,7 +198,7 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener, MediaPlaye
         mWifiLock = null;
         mAudioFocusManager = null;
         mHandler.removeMessages(TIME_MSG);
-        // TODO 发送销毁播放器事件,清除通知等
+        // 发送销毁播放器事件,清除通知等
         AudioEventBean.post(getStatus(), AudioEventBean.EVENT_RELEASE);
     }
 

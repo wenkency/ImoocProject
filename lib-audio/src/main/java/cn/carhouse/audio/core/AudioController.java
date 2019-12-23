@@ -10,6 +10,9 @@ import cn.carhouse.audio.bean.AudioBean;
 import cn.carhouse.audio.state.MediaStatus;
 import cn.carhouse.audio.state.PlayModes;
 
+/**
+ * 音乐播放业务封装
+ */
 public class AudioController implements MediaPlayer.OnCompletionListener {
 
 
@@ -108,11 +111,11 @@ public class AudioController implements MediaPlayer.OnCompletionListener {
     /**
      * 设置播放队列
      */
-    public void setQueue(ArrayList<AudioBean> queue) {
+    public void setQueue(List<AudioBean> queue) {
         setQueue(queue, 0);
     }
 
-    public void setQueue(ArrayList<AudioBean> queue, int queueIndex) {
+    public void setQueue(List<AudioBean> queue, int queueIndex) {
         mQueue.addAll(queue);
         mQueueIndex = queueIndex;
     }
@@ -151,6 +154,13 @@ public class AudioController implements MediaPlayer.OnCompletionListener {
     }
 
     /**
+     * 对外提供是否默认状态
+     */
+    public boolean isIdleState() {
+        return MediaStatus.IDLE == getStatus();
+    }
+
+    /**
      * 对外提供是否播放中状态
      */
     public boolean isStartState() {
@@ -175,7 +185,9 @@ public class AudioController implements MediaPlayer.OnCompletionListener {
      * 播放/暂停切换
      */
     public void playOrPause() {
-        if (isStartState()) {
+        if (isIdleState()) {
+            play();
+        } else if (isStartState()) {
             pause();
         } else if (isPauseState()) {
             resume();

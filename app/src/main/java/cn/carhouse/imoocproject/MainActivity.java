@@ -6,10 +6,15 @@ import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import cn.carhouse.audio.app.AudioHelper;
 import cn.carhouse.audio.bean.AudioBean;
 import cn.carhouse.audio.core.AudioController;
+import cn.carhouse.base.utils.TSUtils;
+import cn.carhouse.permission.Permission;
+import cn.carhouse.permission.PermissionListenerAdapter;
+import cn.carhouse.permission.XPermission;
 
 public class MainActivity extends AppCompatActivity {
     /*
@@ -20,8 +25,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
         AudioHelper.init(this);
+        setContentView(R.layout.activity_main);
         initData();
     }
 
@@ -46,7 +51,23 @@ public class MainActivity extends AppCompatActivity {
                         "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1559698289780&di=5146d48002250bf38acfb4c9b4bb6e4e&imgtype=0&src=http%3A%2F%2Fpic.baike.soso.com%2Fp%2F20131220%2Fbki-20131220170401-1254350944.jpg",
                         "2:45"));
 
-        AudioController.getInstance().setQueue(mLists);
+       AudioController.getInstance().setQueue(mLists);
+
+//        XPermission.with(this)
+//                .permissions(Permission.STORAGE)
+//                .request(new PermissionListenerAdapter() {
+//                    @Override
+//                    public void onSucceed() {
+//                        MusicPresenter.getLocalMusic(MainActivity.this, new MusicPresenter.OnLoadMusicListener() {
+//                            @Override
+//                            public void onLoadCompleted(List<AudioBean> list) {
+//                                AudioController.getInstance().setQueue(list);
+//                                TSUtils.show("加载完成："+list.size());
+//                            }
+//                        });
+//                    }
+//                });
+
     }
 
     public void play(View view) {

@@ -35,4 +35,7 @@ dependencies {
     implementation project(path: ':lib-frame')
 //    implementation this.depenLibs.arouterCompiler
     implementation project(path: ':lib-audio')
+    implementation 'com.github.wenkency:permission:1.0.0'
+    implementation this.depenLibs.utils
+    implementation this.depenLibs.imageloader
 }

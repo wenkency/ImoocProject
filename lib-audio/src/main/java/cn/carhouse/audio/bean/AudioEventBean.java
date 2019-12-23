@@ -20,6 +20,7 @@ public class AudioEventBean {
      * 销毁事件
      */
     public static final int EVENT_RELEASE = 0x0003;
+    private  AudioBean audioBean;
     private MediaStatus mediaStatus;
     private int currentPosition;
     private int duration;
@@ -45,6 +46,11 @@ public class AudioEventBean {
         this.currentPosition = currentPosition;
         this.duration = duration;
         this.event = EVENT_UPDATE;
+    }
+
+    public AudioEventBean(MediaStatus mediaStatus, AudioBean bean) {
+        this.mediaStatus=mediaStatus;
+        this.audioBean=bean;
     }
 
     public MediaStatus getMediaStatus() {
@@ -79,6 +85,14 @@ public class AudioEventBean {
         this.event = event;
     }
 
+    public AudioBean getAudioBean() {
+        return audioBean;
+    }
+
+    public void setAudioBean(AudioBean audioBean) {
+        this.audioBean = audioBean;
+    }
+
     public static void post(MediaStatus mediaStatus, int currentPosition, int duration) {
         // 把自己发送出去
         EventBus.getDefault().post(new AudioEventBean(mediaStatus, currentPosition, duration));
@@ -87,6 +101,11 @@ public class AudioEventBean {
     public static void post(MediaStatus mediaStatus) {
         // 把自己发送出去
         EventBus.getDefault().post(new AudioEventBean(mediaStatus));
+    }
+
+    public static void post(MediaStatus mediaStatus, AudioBean bean) {
+        // 把自己发送出去
+        EventBus.getDefault().post(new AudioEventBean(mediaStatus,bean));
     }
 
     public static void post(MediaStatus mediaStatus, int event) {
