@@ -61,7 +61,12 @@ public class MusicBottomLayout extends ConstraintLayout implements View.OnClickL
         mAnimator.setDuration(10000);
         mAnimator.setInterpolator(new LinearInterpolator());
         mAnimator.setRepeatCount(-1);
-
+        showLoadView(AudioController.getInstance().getNowPlaying());
+        if (AudioController.getInstance().isStartState()) {
+            showPlayView();
+        } else {
+            showPauseView();
+        }
     }
 
     @Override
@@ -108,12 +113,11 @@ public class MusicBottomLayout extends ConstraintLayout implements View.OnClickL
         //目前loading状态的UI处理与pause逻辑一样，分开为了以后好扩展
         if (audioBean != null) {
             mAudioBean = audioBean;
-            mCurrentPlayTime = AudioController.getInstance().getNowPlayTime();
             ImageLoaderFactory.getInstance().displayCircleImage(mIvIcon, mAudioBean.getAlbumPic());
             mTvName.setText(mAudioBean.getName());
             mTvAlbum.setText(mAudioBean.getAlbum());
         }
-        showPauseView();
+
     }
 
     private void showPauseView() {

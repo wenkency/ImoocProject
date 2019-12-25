@@ -91,12 +91,12 @@ public class MainActivity extends AppCompatActivity {
     public void onEvent(MediaStatus status) {
         switch (status) {
             case IDLE:
-                AudioBean nowPlaying = AudioController.getInstance().getNowPlaying();
-                if (nowPlaying != null) {
-                    ImageLoaderFactory.getInstance().displayBlurImage(view,
-                            nowPlaying.getAlbumPic(),
-                            100);
-                }
+//                AudioBean nowPlaying = AudioController.getInstance().getNowPlaying();
+//                if (nowPlaying != null) {
+//                    ImageLoaderFactory.getInstance().displayBlurImage(view,
+//                            nowPlaying.getAlbumPic(),
+//                            100);
+//                }
                 break;
         }
     }

@@ -117,7 +117,7 @@ public class AudioController implements MediaPlayer.OnCompletionListener {
      * 设置播放队列
      */
     public void setQueue(List<AudioBean> queue) {
-        setQueue(queue, 0);
+        setQueue(queue, mQueueIndex);
     }
 
     public void setQueue(List<AudioBean> queue, int queueIndex) {
