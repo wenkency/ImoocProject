@@ -24,6 +24,11 @@
             android:authorities="${applicationId}.BaseProvider"
             android:exported="false"
             android:multiprocess="true" />
+
+        <service
+            android:name=".utils.MusicService"
+            android:enabled="true"
+            android:exported="false" />
     </application>
 
 </manifest>
