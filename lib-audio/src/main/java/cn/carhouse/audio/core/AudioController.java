@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import cn.carhouse.audio.app.AudioHelper;
 import cn.carhouse.audio.bean.AudioBean;
 import cn.carhouse.audio.state.MediaStatus;
 import cn.carhouse.audio.state.PlayModes;
@@ -39,7 +40,7 @@ public class AudioController implements MediaPlayer.OnCompletionListener {
     private PlayModes mPlayMode = PlayModes.LOOP;
 
     private AudioController() {
-        mAudioPlayer = new AudioPlayer();
+        mAudioPlayer = new AudioPlayer(AudioHelper.getContext());
         mAudioPlayer.setOnCompletionListener(this);
     }
 
@@ -50,7 +51,7 @@ public class AudioController implements MediaPlayer.OnCompletionListener {
         if (bean == null) {
             return;
         }
-        mAudioPlayer.play(bean);
+        mAudioPlayer.load(bean);
     }
 
     private AudioBean getPlaying(int index) {
@@ -67,6 +68,10 @@ public class AudioController implements MediaPlayer.OnCompletionListener {
      */
     private MediaStatus getStatus() {
         return mAudioPlayer.getStatus();
+    }
+
+    public void setStatus(MediaStatus status) {
+        mAudioPlayer.setStatus(status);
     }
 
     private AudioBean getNextPlaying() {
@@ -148,6 +153,7 @@ public class AudioController implements MediaPlayer.OnCompletionListener {
     public void setPlayIndex(int index) {
         if (mQueue == null) {
             //  throw new AudioQueueEmptyException("当前播放队列为空,请先设置播放队列.");
+            return;
         }
         mQueueIndex = index;
         play();
@@ -157,7 +163,7 @@ public class AudioController implements MediaPlayer.OnCompletionListener {
      * 对外提供是否默认状态
      */
     public boolean isIdleState() {
-        return MediaStatus.IDLE == getStatus();
+        return MediaStatus.IDLE == getStatus() || MediaStatus.INITIALIZED == getStatus();
     }
 
     /**

@@ -5,29 +5,32 @@ import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import java.util.ArrayList;
-import java.util.List;
 
 import cn.carhouse.audio.app.AudioHelper;
 import cn.carhouse.audio.bean.AudioBean;
 import cn.carhouse.audio.core.AudioController;
-import cn.carhouse.base.utils.TSUtils;
+import cn.carhouse.audio.state.MediaStatus;
+import cn.carhouse.imageloader.ImageLoaderFactory;
 import cn.carhouse.imoocproject.utils.MusicService;
-import cn.carhouse.permission.Permission;
-import cn.carhouse.permission.PermissionListenerAdapter;
-import cn.carhouse.permission.XPermission;
 
 public class MainActivity extends AppCompatActivity {
     /*
      * data
      */
     private ArrayList<AudioBean> mLists = new ArrayList<>();
+    private View view;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         AudioHelper.init(this);
+        EventBus.getDefault().register(this);
         setContentView(R.layout.activity_main);
+        view = findViewById(R.id.root_view);
         initData();
     }
 
@@ -51,9 +54,15 @@ public class MainActivity extends AppCompatActivity {
                         "五月天", "小幸运", "电影《不能说的秘密》主题曲,尤其以最美的不是下雨天,是与你一起躲过雨的屋檐最为经典",
                         "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1559698289780&di=5146d48002250bf38acfb4c9b4bb6e4e&imgtype=0&src=http%3A%2F%2Fpic.baike.soso.com%2Fp%2F20131220%2Fbki-20131220170401-1254350944.jpg",
                         "2:45"));
-       // AudioController.getInstance().setQueue(mLists);
+        // AudioController.getInstance().setQueue(mLists);
 
-        MusicService.startMusicService(mLists);
+        view.post(new Runnable() {
+            @Override
+            public void run() {
+                MusicService.startMusicService(mLists);
+            }
+        });
+
 
 //        XPermission.with(this)
 //                .permissions(Permission.STORAGE)
@@ -72,20 +81,23 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void play(View view) {
-        AudioController.getInstance().play();
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
     }
 
-    public void pause(View view) {
-        AudioController.getInstance().playOrPause();
-    }
-
-    public void next(View view) {
-        AudioController.getInstance().next();
-    }
-
-    public void previous(View view) {
-        AudioController.getInstance().previous();
+    @Subscribe
+    public void onEvent(MediaStatus status) {
+        switch (status) {
+            case IDLE:
+                AudioBean nowPlaying = AudioController.getInstance().getNowPlaying();
+                if (nowPlaying != null) {
+                    ImageLoaderFactory.getInstance().displayBlurImage(view,
+                            nowPlaying.getAlbumPic(),
+                            100);
+                }
+                break;
+        }
     }
 }

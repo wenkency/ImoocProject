@@ -18,7 +18,6 @@ import androidx.core.app.NotificationCompat;
 
 import cn.carhouse.audio.app.AudioHelper;
 import cn.carhouse.audio.bean.AudioBean;
-import cn.carhouse.audio.core.AudioController;
 import cn.carhouse.imageloader.ImageLoaderFactory;
 import cn.carhouse.imoocproject.R;
 
@@ -37,7 +36,7 @@ public class MusicNotifyManager {
     private Notification mNotification;
     // 通知栏布局
     private RemoteViews mRemoteViews;
-    private RemoteViews  mSmallRemoteViews;
+    private RemoteViews mSmallRemoteViews;
     private String packageName;
     //当前要播的歌曲Bean
     private AudioBean mAudioBean;
@@ -60,22 +59,22 @@ public class MusicNotifyManager {
 
     }
 
-    public void setListener(NotificationInitListener listener) {
+    public MusicNotifyManager setListener(NotificationInitListener listener) {
         this.listener = listener;
+        return this;
     }
 
     public void init(Context context) {
         mContext = context;
         packageName = context.getPackageName();
-        mAudioBean = AudioController.getInstance().getNowPlaying();
         if (mNotification == null) {
             // 1. 初始化RemoteView
             initRemoteViews();
             initNotifyManager();
             initNotify();
-        }
-        if (listener != null) {
-            listener.onNotificationInit();
+            if (listener != null) {
+                listener.onNotificationInit();
+            }
         }
     }
 
@@ -90,9 +89,7 @@ public class MusicNotifyManager {
     private void initRemoteViews() {
         mRemoteViews = new RemoteViews(packageName, R.layout.music_remote_big_content);
         mSmallRemoteViews = new RemoteViews(packageName, R.layout.music_remote_small_content);
-
-
-        //点击播放按钮广播
+        // 点击播放按钮广播
         Intent playIntent = new Intent(NotificationReceiver.ACTION_STATUS_BAR);
         playIntent.putExtra(NotificationReceiver.EXTRA,
                 NotificationReceiver.EXTRA_PLAY);
@@ -185,25 +182,19 @@ public class MusicNotifyManager {
      * 显示Notification的加载状态
      */
     public void showLoadStatus(AudioBean bean) {
-        //防止空指针crash
+        // 防止空指针crash
         mAudioBean = bean;
-        if (mRemoteViews != null) {
-            mRemoteViews.setImageViewResource(R.id.play_view, R.mipmap.note_btn_pause_white);
+        if (mRemoteViews != null && mAudioBean != null) {
+            mRemoteViews.setImageViewResource(R.id.play_view, R.mipmap.note_btn_play_white);
             mRemoteViews.setTextViewText(R.id.title_view, mAudioBean.getName());
             mRemoteViews.setTextViewText(R.id.tip_view, mAudioBean.getAlbum());
 
             ImageLoaderFactory.getInstance()
                     .displayNotificationImage(mContext, mNotification, mRemoteViews,
                             R.id.image_view, NOTIFICATION_ID, mAudioBean.getAlbumPic());
-            //更新收藏view
-//            if (null != GreenDaoHelper.selectFavourite(mAudioBean)) {
-//                mRemoteViews.setImageViewResource(R.id.favourite_view, R.mipmap.note_btn_loved);
-//            } else {
-//                mRemoteViews.setImageViewResource(R.id.favourite_view, R.mipmap.note_btn_love_white);
-//            }
 
             //小布局也要更新
-            mSmallRemoteViews.setImageViewResource(R.id.play_view, R.mipmap.note_btn_pause_white);
+            mSmallRemoteViews.setImageViewResource(R.id.play_view, R.mipmap.note_btn_play_white);
             mSmallRemoteViews.setTextViewText(R.id.title_view, mAudioBean.getName());
             mSmallRemoteViews.setTextViewText(R.id.tip_view, mAudioBean.getAlbum());
 
@@ -231,7 +222,6 @@ public class MusicNotifyManager {
             mNotifyManager.notify(NOTIFICATION_ID, mNotification);
         }
     }
-
 
 
     /**

@@ -15,7 +15,6 @@ import java.util.List;
 
 import cn.carhouse.audio.app.AudioHelper;
 import cn.carhouse.audio.bean.AudioBean;
-import cn.carhouse.audio.bean.AudioEventBean;
 import cn.carhouse.audio.core.AudioController;
 import cn.carhouse.audio.state.MediaStatus;
 
@@ -61,20 +60,25 @@ public class MusicService extends Service implements NotificationInitListener {
     public int onStartCommand(Intent intent, int flags, int startId) {
         mAudioBeans = (ArrayList<AudioBean>) intent.getSerializableExtra(DATA_AUDIOS);
         if (ACTION_START.equals(intent.getAction())) {
-            AudioController.getInstance().setQueue(mAudioBeans);
-            // 初始化前台Notification
-            MusicNotifyManager.getInstance().setListener(this);
-            MusicNotifyManager.getInstance().init(this);
-            // 开始播放
-            playMusic();
-
+            if (mAudioBeans != null && mAudioBeans.size() > 0) {
+                AudioController.getInstance().setQueue(mAudioBeans);
+                // 初始化前台Notification
+                MusicNotifyManager.getInstance()
+                        .setListener(this)
+                        .init(this);
+            }
         }
         return super.onStartCommand(intent, flags, startId);
     }
 
-    private void playMusic() {
-        AudioController.getInstance().play();
+    @Override
+    public void onNotificationInit() {
+        // service与Notification绑定
+        startForeground(MusicNotifyManager.NOTIFICATION_ID,
+                MusicNotifyManager.getInstance().getNotification());
+        AudioController.getInstance().setStatus(MediaStatus.IDLE);
     }
+
 
     private void registerBroadcastReceiver() {
         if (mReceiver == null) {
@@ -91,12 +95,6 @@ public class MusicService extends Service implements NotificationInitListener {
         }
     }
 
-    @Override
-    public void onNotificationInit() {
-        // service与Notification绑定
-        startForeground(MusicNotifyManager.NOTIFICATION_ID,
-                MusicNotifyManager.getInstance().getNotification());
-    }
 
     @Override
     public void onDestroy() {
@@ -106,23 +104,17 @@ public class MusicService extends Service implements NotificationInitListener {
     }
 
     @Subscribe
-    public void onEvent(AudioEventBean bean) {
-        MediaStatus status = bean.getMediaStatus();
+    public void onEvent(MediaStatus status) {
         switch (status) {
             case IDLE:
-                MusicNotifyManager.getInstance().showLoadStatus(bean.getAudioBean());
+                AudioBean bean = AudioController.getInstance().getNowPlaying();
+                MusicNotifyManager.getInstance().showLoadStatus(bean);
                 break;
             case STARTED:
-                if (bean.getEvent() != AudioEventBean.EVENT_UPDATE) {
-                    MusicNotifyManager.getInstance().showPlayStatus();
-                }
+                MusicNotifyManager.getInstance().showPlayStatus();
                 break;
             case PAUSED:
-                if (bean.getEvent() != AudioEventBean.EVENT_UPDATE) {
-                    MusicNotifyManager.getInstance().showPauseStatus();
-                }
-                break;
-            case INITIALIZED:
+                MusicNotifyManager.getInstance().showPauseStatus();
                 break;
         }
     }

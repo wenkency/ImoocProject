@@ -11,7 +11,6 @@ import android.os.PowerManager;
 
 import androidx.annotation.NonNull;
 
-import cn.carhouse.audio.app.AudioHelper;
 import cn.carhouse.audio.bean.AudioBean;
 import cn.carhouse.audio.bean.AudioEventBean;
 import cn.carhouse.audio.state.MediaStatus;
@@ -20,10 +19,11 @@ import cn.carhouse.audio.state.MediaStatus;
  * 1. 播放音频
  * 2. 发送各种事件
  */
-public class AudioPlayer implements MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnBufferingUpdateListener, AudioFocusManager.AudioFocusListener {
+public class AudioPlayer implements MediaPlayer.OnPreparedListener, AudioFocusManager.AudioFocusListener {
+    // 更新事件
     private static final int TIME_MSG = 0x100;
+    // 更新缓迟时间
     private static final int TIME_DELAY = 500;
-    private static final int TIME_CURRENT = -100;
     // 音乐播放器
     private AudioMediaPlayer mMediaPlayer;
     private WifiManager.WifiLock mWifiLock;
@@ -31,33 +31,20 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener, MediaPlaye
     private AudioFocusManager mAudioFocusManager;
     private Context mContext;
     private boolean isPaused = false;
-    private MediaPlayer.OnCompletionListener mOnCompletionListener;
-    // 标识有没有播放完成
-    private int mCurrentPosition = TIME_CURRENT;
+
     private Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(@NonNull Message msg) {
             // UI类型处理事件
             int currentPosition = getCurrentPosition();
             int duration = getDuration();
-            // 完成播放了
-            if (mCurrentPosition != TIME_CURRENT &&
-                    getStatus() == MediaStatus.STARTED &&
-                    mCurrentPosition == currentPosition) {
-                resetCurrent();
-                mMediaPlayer.onCompletion(mMediaPlayer);
-                return;
-            }
-
             switch (msg.what) {
                 case TIME_MSG:
                     // 更新进度
-                    //暂停也要更新进度，防止UI不同步，只不过进度一直一样
-                    if (getStatus() == MediaStatus.STARTED
-                            || getStatus() == MediaStatus.PAUSED) {
-                        mCurrentPosition = currentPosition;
+                    // 暂停也要更新进度，防止UI不同步，只不过进度一直一样
+                    if (isStart() || isPause()) {
                         // 发送更新事件
-                        AudioEventBean.post(getStatus(), currentPosition, duration);
+                        AudioEventBean.post(currentPosition, duration);
                         // 发送事件再更新
                         sendEmptyMessageDelayed(TIME_MSG, TIME_DELAY);
                     }
@@ -67,26 +54,13 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener, MediaPlaye
     };
 
 
-    public MediaStatus getStatus() {
-        if (mMediaPlayer != null) {
-            return mMediaPlayer.getStatus();
-        }
-        return MediaStatus.IDLE;
-    }
+    public AudioPlayer(Context context) {
+        mContext = context;
 
-    public AudioPlayer() {
-        mContext = AudioHelper.getContext();
-        init();
-    }
-
-    private void init() {
         mMediaPlayer = new AudioMediaPlayer();
         mMediaPlayer.setWakeMode(mContext, PowerManager.PARTIAL_WAKE_LOCK);
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        mMediaPlayer.setOnCompletionListener(this);
-        mMediaPlayer.setOnErrorListener(this);
         mMediaPlayer.setOnPreparedListener(this);
-        mMediaPlayer.setOnBufferingUpdateListener(this);
 
         WifiManager wifiManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
         mWifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL, AudioPlayer.class.getSimpleName());
@@ -94,35 +68,26 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener, MediaPlaye
         mAudioFocusManager = new AudioFocusManager(mContext, this);
     }
 
-    @Override
-    public void onBufferingUpdate(MediaPlayer mp, int percent) {
-
-    }
 
     /**
-     * 对外提供调用的方法
+     * 加载播放音乐的方法
      */
-    public void play(AudioBean bean) {
+    public void load(AudioBean bean) {
         try {
-            // 手动设置状态最快
             mMediaPlayer.setStatus(MediaStatus.IDLE);
-            resetCurrent();
-            // 发送事件
-            AudioEventBean.post(getStatus(), bean);
+            // 先移除事件。不然会凉
+            mHandler.removeMessages(TIME_MSG);
+            // 开始准备
             mMediaPlayer.reset();
             mMediaPlayer.setDataSource(bean.getUrl());
             mMediaPlayer.prepareAsync();
+            // 准备后会去--》onPrepared 或者 onError
         } catch (Throwable e) {
             e.printStackTrace();
-            // 发送事件
-            AudioEventBean.post(getStatus(), AudioEventBean.EVENT_ERROR);
         }
 
     }
 
-    private void resetCurrent() {
-        mCurrentPosition = TIME_CURRENT;
-    }
 
     @Override
     public void onPrepared(MediaPlayer mp) {
@@ -130,31 +95,29 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener, MediaPlaye
         start();
     }
 
+
     /**
      * prepare以后自动调用start方法,外部不能调用
      */
     private void start() {
         // 获取音频焦点,保证我们的播放器顺利播放
         if (!mAudioFocusManager.requestAudioFocus()) {
-            // Log.e(TAG, "获取音频焦点失败");
         }
-        resetCurrent();
         // 先移除事件。不然会凉
         mHandler.removeMessages(TIME_MSG);
+
         mMediaPlayer.start();
         // 启用wifi锁
         mWifiLock.acquire();
         // 更新进度
         mHandler.sendEmptyMessageDelayed(TIME_MSG, TIME_DELAY);
-        // 发送start事件，UI类型处理事件
-        AudioEventBean.post(getStatus());
     }
 
     /**
      * 暂停
      */
     public void pause() {
-        if (getStatus() == MediaStatus.STARTED) {
+        if (isStart()) {
             mMediaPlayer.pause();
             // 关闭wifi锁
             if (mWifiLock.isHeld()) {
@@ -164,8 +127,6 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener, MediaPlaye
             if (mAudioFocusManager != null) {
                 mAudioFocusManager.abandonAudioFocus();
             }
-            // 发送暂停事件,UI类型事件
-            AudioEventBean.post(getStatus());
         }
     }
 
@@ -173,9 +134,17 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener, MediaPlaye
      * 对外提供的播放方法
      */
     public void resume() {
-        if (getStatus() == MediaStatus.PAUSED) {
+        if (isPause()) {
             start();
         }
+    }
+
+    public boolean isPause() {
+        return getStatus() == MediaStatus.PAUSED;
+    }
+
+    public boolean isStart() {
+        return getStatus() == MediaStatus.STARTED;
     }
 
     /**
@@ -199,7 +168,7 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener, MediaPlaye
         mAudioFocusManager = null;
         mHandler.removeMessages(TIME_MSG);
         // 发送销毁播放器事件,清除通知等
-        AudioEventBean.post(getStatus(), AudioEventBean.EVENT_RELEASE);
+        AudioEventBean.post(AudioEventBean.EVENT_RELEASE);
     }
 
     @Override
@@ -235,50 +204,56 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener, MediaPlaye
         setVolume(0.3f, 0.3f);
     }
 
-    @Override
-    public void onCompletion(MediaPlayer mp) {
-        if (mOnCompletionListener != null) {
-            mOnCompletionListener.onCompletion(mp);
-        }
-        // 播放完成
-        AudioEventBean.post(getStatus());
-    }
 
     public void setOnCompletionListener(MediaPlayer.OnCompletionListener onCompletionListener) {
-        this.mOnCompletionListener = onCompletionListener;
+        if (mMediaPlayer != null) {
+            mMediaPlayer.setOnCompletionListener(onCompletionListener);
+        }
     }
 
-    @Override
-    public boolean onError(MediaPlayer mp, int what, int extra) {
-        // 异常处理
-        AudioEventBean.post(getStatus(), AudioEventBean.EVENT_ERROR);
-        return true;
-    }
 
     /**
      * 获取当前音乐总时长,更新进度用
      */
     public int getDuration() {
-        if (getStatus() == MediaStatus.STARTED
-                || getStatus() == MediaStatus.PAUSED) {
+        if (isStart() || isPause()) {
             return mMediaPlayer.getDuration();
         }
         return 0;
     }
 
+    /**
+     * 获取当前音乐播放时长
+     */
     public int getCurrentPosition() {
-        if (getStatus() == MediaStatus.STARTED
-                || getStatus() == MediaStatus.PAUSED) {
+        if (isStart() || isPause()) {
             return mMediaPlayer.getCurrentPosition();
         }
         return 0;
     }
 
+    public MediaStatus getStatus() {
+        if (mMediaPlayer != null) {
+            return mMediaPlayer.getStatus();
+        }
+        return MediaStatus.IDLE;
+    }
+
+    public void setStatus(MediaStatus status) {
+        if (mMediaPlayer != null) {
+            mMediaPlayer.setStatus(status);
+        }
+    }
+
+    /**
+     * 设置音量
+     */
     public void setVolume(float left, float right) {
         if (mMediaPlayer != null) {
             mMediaPlayer.setVolume(left, right);
         }
     }
+
 
     /**
      * @param looping false走onCompletion
@@ -288,4 +263,5 @@ public class AudioPlayer implements MediaPlayer.OnCompletionListener, MediaPlaye
             mMediaPlayer.setLooping(looping);
         }
     }
+
 }

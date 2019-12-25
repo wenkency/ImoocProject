@@ -22,7 +22,7 @@ ext {
             arouterCompiler: "com.alibaba:arouter-compiler:1.2.2",
             eventbus       : "org.greenrobot:eventbus:3.1.1",
             utils          : 'com.github.wenkency:utils:1.2.0',
-            imageloader    : 'com.github.wenkency:imageloader:1.9.0',
+            imageloader    : 'com.github.wenkency:imageloader:2.0.1',
             permission :'com.github.wenkency:permission:1.0.0',
     ]
 }

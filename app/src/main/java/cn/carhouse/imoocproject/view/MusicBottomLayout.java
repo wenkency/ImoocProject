@@ -14,7 +14,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import cn.carhouse.audio.bean.AudioBean;
-import cn.carhouse.audio.bean.AudioEventBean;
 import cn.carhouse.audio.core.AudioController;
 import cn.carhouse.audio.state.MediaStatus;
 import cn.carhouse.imageloader.ImageLoaderFactory;
@@ -63,12 +62,6 @@ public class MusicBottomLayout extends ConstraintLayout implements View.OnClickL
         mAnimator.setInterpolator(new LinearInterpolator());
         mAnimator.setRepeatCount(-1);
 
-        // 开启动画
-        AudioBean nowPlaying = AudioController.getInstance().getNowPlaying();
-        if (nowPlaying != null) {
-            mCurrentPlayTime = AudioController.getInstance().getNowPlayTime();
-            showLoadView(nowPlaying);
-        }
     }
 
     @Override
@@ -96,24 +89,17 @@ public class MusicBottomLayout extends ConstraintLayout implements View.OnClickL
     }
 
     @Subscribe
-    public void onEvent(AudioEventBean bean) {
-        MediaStatus status = bean.getMediaStatus();
+    public void onEvent(MediaStatus status) {
         switch (status) {
             case IDLE:
-                showLoadView(bean.getAudioBean());
-                stopAnimation();
+                showLoadView(AudioController.getInstance().getNowPlaying());
                 break;
             case STARTED:
-                if (bean.getEvent() != AudioEventBean.EVENT_UPDATE) {
-                    showPlayView();
-                }
+                showPlayView();
                 break;
             case PAUSED:
-                if (bean.getEvent() != AudioEventBean.EVENT_UPDATE) {
-                    showPauseView();
-                }
-                break;
-            case INITIALIZED:
+            case COMPLETED:
+                showPauseView();
                 break;
         }
     }
@@ -122,11 +108,12 @@ public class MusicBottomLayout extends ConstraintLayout implements View.OnClickL
         //目前loading状态的UI处理与pause逻辑一样，分开为了以后好扩展
         if (audioBean != null) {
             mAudioBean = audioBean;
+            mCurrentPlayTime = AudioController.getInstance().getNowPlayTime();
             ImageLoaderFactory.getInstance().displayCircleImage(mIvIcon, mAudioBean.getAlbumPic());
             mTvName.setText(mAudioBean.getName());
             mTvAlbum.setText(mAudioBean.getAlbum());
-            showPlayView();
         }
+        showPauseView();
     }
 
     private void showPauseView() {
@@ -154,6 +141,7 @@ public class MusicBottomLayout extends ConstraintLayout implements View.OnClickL
         mCurrentPlayTime = mAnimator.getCurrentPlayTime();
         mAnimator.cancel();
     }
+
     /**
      * 开始动画
      */
