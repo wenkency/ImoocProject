@@ -9,13 +9,14 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
+
+import cn.carhouse.utils.LogUtils;
 
 /**
  * 视频播放
@@ -57,6 +58,7 @@ public class CustomVideoView extends RatioFrameLayout implements SurfaceHolder.C
 
     public CustomVideoView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        LogUtils.setDebug(BuildConfig.DEBUG);
         inflate(context, R.layout.video_layout_custom, this);
         initViews();
     }
@@ -87,7 +89,8 @@ public class CustomVideoView extends RatioFrameLayout implements SurfaceHolder.C
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        Log.e(TAG, "surfaceCreated");
+        LogUtils.e(TAG, "surfaceCreated");
+
         // 1. 创建MediaPlayer
         initMediaPlayer();
         // 2. 关联MediaPlayer
@@ -104,14 +107,14 @@ public class CustomVideoView extends RatioFrameLayout implements SurfaceHolder.C
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        Log.e(TAG, "surfaceChanged");
+        LogUtils.e(TAG, "surfaceChanged");
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-        Log.e(TAG, "surfaceDestroyed");
+        LogUtils.e(TAG, "surfaceDestroyed");
         // 销毁
-        // release();
+        // 处理暂停事件
         if (isInit) {
             if (mMediaPlayer != null && mMediaPlayer.isPlaying()) {
                 isRealPause = true;
@@ -122,7 +125,7 @@ public class CustomVideoView extends RatioFrameLayout implements SurfaceHolder.C
 
     @Override
     protected void onVisibilityChanged(@NonNull View changedView, int visibility) {
-        Log.e(TAG, "onVisibilityChanged:" + (visibility == View.VISIBLE));
+        LogUtils.e(TAG, "onVisibilityChanged:" + (visibility == View.VISIBLE));
         // 处理没图片问题
         if (isInit && (visibility == View.VISIBLE) && !mMediaPlayer.isPlaying()) {
             mMediaPlayer.seekTo(currentPosition);
@@ -323,7 +326,7 @@ public class CustomVideoView extends RatioFrameLayout implements SurfaceHolder.C
 
     public void setStatus(VideoStatus status) {
         this.mStatus = status;
-        Log.e(TAG, mStatus.toString());
+        LogUtils.e(TAG, mStatus.toString());
     }
 
     /**
