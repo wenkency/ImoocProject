@@ -1,2 +1,2 @@
-include ':app', ':lib-frame', ':lib-audio'
+include ':app', ':lib-frame', ':lib-audio', ':lib-video'
 rootProject.name='ImoocProject'

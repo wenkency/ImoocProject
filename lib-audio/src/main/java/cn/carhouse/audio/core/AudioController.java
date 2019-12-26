@@ -163,7 +163,7 @@ public class AudioController implements MediaPlayer.OnCompletionListener {
      * 对外提供是否默认状态
      */
     public boolean isIdleState() {
-        return MediaStatus.IDLE == getStatus() || MediaStatus.ERRORED == getStatus()
+        return MediaStatus.IDLE == getStatus() || MediaStatus.ERROR == getStatus()
                 || MediaStatus.COMPLETED == getStatus();
     }
 

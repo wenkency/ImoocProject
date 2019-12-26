@@ -118,7 +118,7 @@ public class AudioMediaPlayer extends MediaPlayer implements MediaPlayer.OnCompl
      */
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
-        mStatus = MediaStatus.ERRORED;
+        mStatus = MediaStatus.ERROR;
         postStatus();
         if (onErrorListener != null) {
             onErrorListener.onError(mp, what, extra);

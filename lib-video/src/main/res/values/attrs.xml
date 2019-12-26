@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="RatioLayout">
+        <!-- 宽高比 -->
+        <attr name="rlRatio" format="float" />
+        <!--相对 -->
+        <attr name="rlRelative" format="enum">
+            <enum name="width" value="0" />
+            <enum name="height" value="1" />
+        </attr>
+    </declare-styleable>
+
+</resources>
