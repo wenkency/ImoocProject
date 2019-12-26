@@ -1,4 +1,4 @@
-package cn.carhouse.imoocproject.view;
+package cn.carhouse.imoocproject.music.view;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;
@@ -40,7 +40,7 @@ public class MusicBottomLayout extends ConstraintLayout implements View.OnClickL
     public MusicBottomLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         // 加载布局
-        inflate(context, R.layout.layout_music_bottom, this);
+        inflate(context, R.layout.music_layout_bottom, this);
         // 初始化View
         initViews();
     }

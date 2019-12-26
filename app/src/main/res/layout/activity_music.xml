@@ -5,8 +5,8 @@
     android:layout_height="match_parent"
     android:id="@+id/root_view"
     android:orientation="vertical"
-    tools:context=".MainActivity">
-    <cn.carhouse.imoocproject.view.MusicBottomLayout
+    tools:context=".music.MusicActivity">
+    <cn.carhouse.imoocproject.music.view.MusicBottomLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 </LinearLayout>

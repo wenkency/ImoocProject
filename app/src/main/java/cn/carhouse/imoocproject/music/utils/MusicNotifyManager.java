@@ -1,4 +1,4 @@
-package cn.carhouse.imoocproject.utils;
+package cn.carhouse.imoocproject.music.utils;
 
 import android.app.Notification;
 import android.app.NotificationChannel;

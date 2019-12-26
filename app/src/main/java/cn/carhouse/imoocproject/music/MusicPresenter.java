@@ -1,4 +1,4 @@
-package cn.carhouse.imoocproject;
+package cn.carhouse.imoocproject.music;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;

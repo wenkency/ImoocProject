@@ -1,4 +1,4 @@
-package cn.carhouse.imoocproject;
+package cn.carhouse.imoocproject.music;
 
 import android.os.Bundle;
 import android.view.View;
@@ -12,12 +12,11 @@ import java.util.ArrayList;
 
 import cn.carhouse.audio.app.AudioHelper;
 import cn.carhouse.audio.bean.AudioBean;
-import cn.carhouse.audio.core.AudioController;
 import cn.carhouse.audio.state.MediaStatus;
-import cn.carhouse.imageloader.ImageLoaderFactory;
-import cn.carhouse.imoocproject.utils.MusicService;
+import cn.carhouse.imoocproject.R;
+import cn.carhouse.imoocproject.music.utils.MusicService;
 
-public class MainActivity extends AppCompatActivity {
+public class MusicActivity extends AppCompatActivity {
     /*
      * data
      */
@@ -29,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         AudioHelper.init(this);
         EventBus.getDefault().register(this);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_music);
         view = findViewById(R.id.root_view);
         initData();
     }
@@ -69,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
 //                .request(new PermissionListenerAdapter() {
 //                    @Override
 //                    public void onSucceed() {
-//                        MusicPresenter.getLocalMusic(MainActivity.this, new MusicPresenter.OnLoadMusicListener() {
+//                        MusicPresenter.getLocalMusic(MusicActivity.this, new MusicPresenter.OnLoadMusicListener() {
 //                            @Override
 //                            public void onLoadCompleted(List<AudioBean> list) {
 //                                AudioController.getInstance().setQueue(list);
