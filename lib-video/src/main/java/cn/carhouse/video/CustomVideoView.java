@@ -27,6 +27,11 @@ public class CustomVideoView extends RatioLayout implements SurfaceHolder.Callba
     private VideoStatus mStatus = VideoStatus.IDLE;
     // 加载完成后自动播放
     private boolean isAutoPlay;
+    private boolean isError;
+    // 重试次数
+    private int reloadCount = 1;
+    // 重试
+    private int reload = 0;
 
     public CustomVideoView(Context context) {
         this(context, null);
@@ -126,10 +131,12 @@ public class CustomVideoView extends RatioLayout implements SurfaceHolder.Callba
 
     @Override
     public void onPrepared(MediaPlayer mp) {
+        reload = 0;
         setStatus(VideoStatus.PREPARED);
         showPlayView();
         // 如果设置了加载完成自动播放
-        if (isAutoPlay) {
+        if (isAutoPlay || isError) {
+            isError = false;
             // 播放
             playOrPause();
         }
@@ -230,7 +237,13 @@ public class CustomVideoView extends RatioLayout implements SurfaceHolder.Callba
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
         setStatus(VideoStatus.ERROR);
+        isError = true;
         showPlayView();
+        // 错误加载后，重试
+        if (reload < reloadCount) {
+            reload++;
+            playOrPause();
+        }
         return true;
     }
 
@@ -253,7 +266,17 @@ public class CustomVideoView extends RatioLayout implements SurfaceHolder.Callba
         Log.e(TAG, mStatus.toString());
     }
 
+    /**
+     * 设置加载完成自动播放
+     */
     public void setAutoPlay(boolean autoPlay) {
         this.isAutoPlay = autoPlay;
+    }
+
+    /**
+     * 设置加载错误重新加载次数
+     */
+    public void setReloadCount(int reloadCount) {
+        this.reloadCount = reloadCount;
     }
 }
