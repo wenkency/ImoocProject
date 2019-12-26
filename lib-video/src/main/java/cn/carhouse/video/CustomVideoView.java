@@ -103,11 +103,13 @@ public class CustomVideoView extends RatioFrameLayout implements SurfaceHolder.C
         if (isRealPause) {
             start();
         }
+        seekTo(getVisibility());
     }
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
         LogUtils.e(TAG, "surfaceChanged");
+
     }
 
     @Override
@@ -125,9 +127,12 @@ public class CustomVideoView extends RatioFrameLayout implements SurfaceHolder.C
 
     @Override
     protected void onVisibilityChanged(@NonNull View changedView, int visibility) {
-        LogUtils.e(TAG, "onVisibilityChanged:" + (visibility == View.VISIBLE));
         // 处理没图片问题
-        if (isInit && (visibility == View.VISIBLE) && !mMediaPlayer.isPlaying()) {
+        seekTo(visibility);
+    }
+
+    private void seekTo(int visibility) {
+        if (isInit && (visibility == View.VISIBLE) && isPause()) {
             mMediaPlayer.seekTo(currentPosition);
         }
     }
@@ -227,7 +232,8 @@ public class CustomVideoView extends RatioFrameLayout implements SurfaceHolder.C
         if (mMediaPlayer != null) {
             currentPosition = 0;
             mMediaPlayer.seekTo(currentPosition);
-            pause();
+            mMediaPlayer.pause();
+            showPlayView();
         }
     }
 
