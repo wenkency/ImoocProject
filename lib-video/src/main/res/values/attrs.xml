@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="RatioLayout">
+    <declare-styleable name="RatioFrameLayout">
         <!-- 宽高比 -->
         <attr name="rlRatio" format="float" />
         <!--相对 -->

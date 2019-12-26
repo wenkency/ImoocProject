@@ -5,32 +5,38 @@ import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
-/*
- *  @项目名：  GooglePlay
- *  @包名：    org.itheima15.googleplay.view
- *  @文件名:   RatioLayout
- *  @创建者:   Administrator
- *  @创建时间:  2015/11/26 10:08
- *  @描述：    TODO
+
+/**
+ * 自定义宽高比缩放的FrameLayout
  */
-public class RatioLayout extends FrameLayout {
+public class RatioFrameLayout extends FrameLayout {
     public static final int RELATIVE_WIDTH = 0;
     public static final int RELATIVE_HEIGHT = 1;
     private float mRatio = 0f;
     private int mRelative = RELATIVE_WIDTH;
     protected int mOriginWidth, mOriginHeight;
 
-    public RatioLayout(Context context) {
+    public RatioFrameLayout(Context context) {
         this(context, null);
     }
 
-    public RatioLayout(Context context, AttributeSet attrs) {
-        super(context, attrs);
+    public RatioFrameLayout(Context context, AttributeSet attrs) {
+        this(context, attrs, 0);
+    }
+
+    public RatioFrameLayout(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        initAttributes(context, attrs);
+    }
+
+    private void initAttributes(@NonNull Context context, @Nullable AttributeSet attrs) {
         // 获取自定义的属性值
-        TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.RatioLayout);
-        mRatio = ta.getFloat(R.styleable.RatioLayout_rlRatio, 0);
-        mRelative = ta.getInt(R.styleable.RatioLayout_rlRelative, RELATIVE_WIDTH);
+        TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.RatioFrameLayout);
+        mRatio = ta.getFloat(R.styleable.RatioFrameLayout_rlRatio, 0);
+        mRelative = ta.getInt(R.styleable.RatioFrameLayout_rlRelative, RELATIVE_WIDTH);
         ta.recycle();
     }
 

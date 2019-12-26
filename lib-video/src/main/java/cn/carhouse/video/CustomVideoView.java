@@ -15,7 +15,7 @@ import android.widget.ImageView;
 /**
  * 视频播放
  */
-public class CustomVideoView extends RatioLayout implements SurfaceHolder.Callback, MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, View.OnClickListener {
+public class CustomVideoView extends RatioFrameLayout implements SurfaceHolder.Callback, MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnErrorListener, View.OnClickListener {
     public static final String TAG = CustomVideoView.class.getSimpleName();
     private SurfaceView mSurfaceView;
     private MediaPlayer mMediaPlayer;
@@ -27,6 +27,7 @@ public class CustomVideoView extends RatioLayout implements SurfaceHolder.Callba
     private VideoStatus mStatus = VideoStatus.IDLE;
     // 加载完成后自动播放
     private boolean isAutoPlay;
+    // 是不是加载错误了
     private boolean isError;
     // 重试次数
     private int reloadCount = 1;
@@ -42,7 +43,7 @@ public class CustomVideoView extends RatioLayout implements SurfaceHolder.Callba
     }
 
     public CustomVideoView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs);
+        super(context, attrs, defStyleAttr);
         inflate(context, R.layout.video_layout_custom, this);
         initViews();
     }
@@ -87,7 +88,6 @@ public class CustomVideoView extends RatioLayout implements SurfaceHolder.Callba
         if (callback != null) {
             callback.surfaceChanged(holder, format, width, height);
         }
-
     }
 
     @Override
@@ -104,6 +104,9 @@ public class CustomVideoView extends RatioLayout implements SurfaceHolder.Callba
         }
     }
 
+    /**
+     * 加载视频的方法
+     */
     private void load() {
         if (TextUtils.isEmpty(mUrl) || mMediaPlayer == null) {
             return;
@@ -128,7 +131,6 @@ public class CustomVideoView extends RatioLayout implements SurfaceHolder.Callba
         }
     }
 
-
     @Override
     public void onPrepared(MediaPlayer mp) {
         reload = 0;
@@ -142,48 +144,12 @@ public class CustomVideoView extends RatioLayout implements SurfaceHolder.Callba
         }
     }
 
-    /**
-     * 播放或者暂停
-     */
-    public void playOrPause() {
-        if (mMediaPlayer == null) {
-            return;
-        }
-        if (isPlaying()) {
-            pause();
-        } else if (isPause() || isPrepared() || isCompleted()) {
-            start();
-        } else if (isError()) {
-            load();
-        }
-    }
-
-
-    private void showLoadingView() {
-        mIvLoading.setVisibility(VISIBLE);
-        mIvSurface.setVisibility(VISIBLE);
+    private void start() {
+        mMediaPlayer.start();
+        setStatus(VideoStatus.STARTED);
         mBtnPlay.setVisibility(GONE);
-        AnimationDrawable anim = (AnimationDrawable) mIvLoading.getBackground();
-        anim.start();
-        // 获取缩略图
-        VideoThumbUtils.getInstance().getVideoThumb(mIvSurface, mUrl);
+        mIvSurface.setVisibility(GONE);
     }
-
-    private void showPlayView() {
-        mIvLoading.clearAnimation();
-        mIvLoading.setVisibility(GONE);
-        mBtnPlay.setVisibility(VISIBLE);
-        mIvSurface.setVisibility(VISIBLE);
-    }
-
-
-    @Override
-    public void onClick(View v) {
-        if (v == this) {
-            playOrPause();
-        }
-    }
-
 
     private void pause() {
         if (mMediaPlayer == null) {
@@ -192,37 +158,6 @@ public class CustomVideoView extends RatioLayout implements SurfaceHolder.Callba
         setStatus(VideoStatus.PAUSED);
         mMediaPlayer.pause();
         showPlayView();
-    }
-
-    private boolean isPause() {
-        return mStatus == VideoStatus.PAUSED;
-    }
-
-    private boolean isPlaying() {
-        return mStatus == VideoStatus.STARTED;
-    }
-
-    private boolean isCompleted() {
-        return mStatus == VideoStatus.COMPLETED;
-    }
-
-    private boolean isError() {
-        return mStatus == VideoStatus.ERROR;
-    }
-
-    private boolean isPrepared() {
-        return mStatus == VideoStatus.PREPARED;
-    }
-
-    private void start() {
-        mMediaPlayer.start();
-        setStatus(VideoStatus.STARTED);
-        mBtnPlay.setVisibility(GONE);
-        mIvSurface.setVisibility(GONE);
-    }
-
-    private void showPauseView() {
-
     }
 
     @Override
@@ -245,6 +180,66 @@ public class CustomVideoView extends RatioLayout implements SurfaceHolder.Callba
             playOrPause();
         }
         return true;
+    }
+
+    /**
+     * 播放或者暂停
+     */
+    public void playOrPause() {
+        if (mMediaPlayer == null) {
+            return;
+        }
+        if (isPlaying()) {
+            pause();
+        } else if (isPause() || isPrepared() || isCompleted()) {
+            start();
+        } else if (isError()) {
+            load();
+        }
+    }
+
+    private void showLoadingView() {
+        mIvLoading.setVisibility(VISIBLE);
+        mIvSurface.setVisibility(VISIBLE);
+        mBtnPlay.setVisibility(GONE);
+        AnimationDrawable anim = (AnimationDrawable) mIvLoading.getBackground();
+        anim.start();
+        // 获取缩略图
+        VideoThumbUtils.getInstance().getVideoThumb(mIvSurface, mUrl);
+    }
+
+    private void showPlayView() {
+        mIvLoading.clearAnimation();
+        mIvLoading.setVisibility(GONE);
+        mBtnPlay.setVisibility(VISIBLE);
+        mIvSurface.setVisibility(VISIBLE);
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v == this) {
+            playOrPause();
+        }
+    }
+
+    private boolean isPause() {
+        return mStatus == VideoStatus.PAUSED;
+    }
+
+    private boolean isPlaying() {
+        return mStatus == VideoStatus.STARTED;
+    }
+
+    private boolean isCompleted() {
+        return mStatus == VideoStatus.COMPLETED;
+    }
+
+    private boolean isError() {
+        return mStatus == VideoStatus.ERROR;
+    }
+
+    private boolean isPrepared() {
+        return mStatus == VideoStatus.PREPARED;
     }
 
 
