@@ -233,6 +233,7 @@ public class CustomVideoView extends RatioFrameLayout implements SurfaceHolder.C
             currentPosition = 0;
             mMediaPlayer.seekTo(currentPosition);
             mMediaPlayer.pause();
+            showThumbView();
             showPlayView();
         }
     }
