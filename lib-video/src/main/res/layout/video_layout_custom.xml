@@ -9,6 +9,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="center" />
 
+    <!--显示缩略图-->
     <ImageView
         android:id="@+id/iv_surface"
         android:layout_width="match_parent"
@@ -16,6 +17,7 @@
         android:layout_gravity="center"
         android:scaleType="fitXY" />
 
+    <!--显示加载动画-->
     <ImageView
         android:id="@+id/iv_loading"
         android:layout_width="wrap_content"
@@ -24,6 +26,7 @@
         android:background="@drawable/video_loading_anim"
         android:visibility="gone" />
 
+    <!--显示播放按钮-->
     <ImageView
         android:id="@+id/btn_play"
         android:layout_width="80dp"

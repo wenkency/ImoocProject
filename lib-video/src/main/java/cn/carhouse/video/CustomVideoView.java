@@ -67,11 +67,11 @@ public class CustomVideoView extends RatioLayout implements SurfaceHolder.Callba
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        // 创建
+        // 1. 创建MediaPlayer
         initMediaPlayer();
-        // 关联MediaPlayer
+        // 2. 关联MediaPlayer
         mMediaPlayer.setDisplay(holder);
-        // 加载视频
+        // 3. 加载视频
         load();
     }
 
@@ -100,21 +100,25 @@ public class CustomVideoView extends RatioLayout implements SurfaceHolder.Callba
     }
 
     private void load() {
-        if (TextUtils.isEmpty(mUrl)) {
+        if (TextUtils.isEmpty(mUrl) || mMediaPlayer == null) {
             return;
         }
         try {
             setStatus(VideoStatus.IDLE);
             // 1. 显示加载的View
             showLoadingView();
+            // 2. 重置
             mMediaPlayer.reset();
             setStatus(VideoStatus.RESET);
+            // 3. 设置播放资源
             mMediaPlayer.setDataSource(mUrl);
             setStatus(VideoStatus.INITIALIZED);
+            // 4. 异步准备
             mMediaPlayer.prepareAsync();
-            // -->onPrepared
+            // --> 5. onPrepared(MediaPlayer mp)
         } catch (Throwable e) {
             e.printStackTrace();
+            // 5. 错误
             setStatus(VideoStatus.ERROR);
         }
     }
@@ -124,6 +128,7 @@ public class CustomVideoView extends RatioLayout implements SurfaceHolder.Callba
     public void onPrepared(MediaPlayer mp) {
         setStatus(VideoStatus.PREPARED);
         showPlayView();
+        // 如果设置了加载完成自动播放
         if (isAutoPlay) {
             // 播放
             playOrPause();
@@ -134,11 +139,14 @@ public class CustomVideoView extends RatioLayout implements SurfaceHolder.Callba
      * 播放或者暂停
      */
     public void playOrPause() {
+        if (mMediaPlayer == null) {
+            return;
+        }
         if (isPlaying()) {
             pause();
-        } else if (isPause() || isPrepared()) {
+        } else if (isPause() || isPrepared() || isCompleted()) {
             start();
-        } else if (isCompleted()) {
+        } else if (isError()) {
             load();
         }
     }
@@ -171,6 +179,9 @@ public class CustomVideoView extends RatioLayout implements SurfaceHolder.Callba
 
 
     private void pause() {
+        if (mMediaPlayer == null) {
+            return;
+        }
         setStatus(VideoStatus.PAUSED);
         mMediaPlayer.pause();
         showPlayView();
@@ -185,8 +196,11 @@ public class CustomVideoView extends RatioLayout implements SurfaceHolder.Callba
     }
 
     private boolean isCompleted() {
-        return mStatus == VideoStatus.COMPLETED
-                || mStatus == VideoStatus.ERROR;
+        return mStatus == VideoStatus.COMPLETED;
+    }
+
+    private boolean isError() {
+        return mStatus == VideoStatus.ERROR;
     }
 
     private boolean isPrepared() {
@@ -207,7 +221,10 @@ public class CustomVideoView extends RatioLayout implements SurfaceHolder.Callba
     @Override
     public void onCompletion(MediaPlayer mp) {
         setStatus(VideoStatus.COMPLETED);
-        showPlayView();
+        if (mMediaPlayer != null) {
+            mMediaPlayer.seekTo(0);
+            pause();
+        }
     }
 
     @Override
