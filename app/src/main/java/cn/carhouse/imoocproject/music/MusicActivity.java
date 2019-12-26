@@ -1,5 +1,6 @@
 package cn.carhouse.imoocproject.music;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
@@ -15,6 +16,7 @@ import cn.carhouse.audio.bean.AudioBean;
 import cn.carhouse.audio.state.MediaStatus;
 import cn.carhouse.imoocproject.R;
 import cn.carhouse.imoocproject.music.utils.MusicService;
+import cn.carhouse.imoocproject.video.VideoActivity;
 
 public class MusicActivity extends AppCompatActivity {
     /*
@@ -98,5 +100,9 @@ public class MusicActivity extends AppCompatActivity {
 //                }
                 break;
         }
+    }
+
+    public void openVideo(View view) {
+        startActivity(new Intent(this, VideoActivity.class));
     }
 }
