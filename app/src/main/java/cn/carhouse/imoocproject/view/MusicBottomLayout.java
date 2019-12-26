@@ -98,6 +98,7 @@ public class MusicBottomLayout extends ConstraintLayout implements View.OnClickL
         switch (status) {
             case IDLE:
                 showLoadView(AudioController.getInstance().getNowPlaying());
+                showPauseView();
                 break;
             case STARTED:
                 showPlayView();

@@ -123,7 +123,7 @@ public class AudioMediaPlayer extends MediaPlayer implements MediaPlayer.OnCompl
         if (onErrorListener != null) {
             onErrorListener.onError(mp, what, extra);
         }
-        return false;
+        return true;
     }
 
 
